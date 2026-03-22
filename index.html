@@ -15,6 +15,25 @@
   --tx:#e8edf8;--tx2:#8ba0bc;--tx3:#3d5270;
   --bc:'Bebas Neue',sans-serif;--bw:'Outfit',sans-serif;--bcon:'Outfit',sans-serif;--mono:'Space Mono',monospace;
 }
+body.light{
+  --bg:#f0f2f7;--bg2:#ffffff;--bg3:#e8eaf0;--bg4:#dde0ea;
+  --tx:#1a1f2e;--tx2:#4a5168;--tx3:#8892a8;
+  --blue:#1a6fff;--blue2:#1a6fff;
+  --gold:#c8880a;--gold2:#c8880a;
+}
+body.light .gbg{background-image:linear-gradient(rgba(26,111,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,255,.06) 1px,transparent 1px)}
+body.light .top{background:rgba(255,255,255,.97);border-bottom:2px solid var(--blue)}
+body.light .ctrl{background:rgba(240,242,247,.97);border-bottom:1px solid rgba(0,0,0,.08)}
+body.light .kpi{background:linear-gradient(135deg,#fff,#f0f2f7);border-color:rgba(0,0,0,.08)}
+body.light .pc.r1{background:linear-gradient(135deg,rgba(200,136,10,.1),rgba(200,136,10,.04));border-color:rgba(200,136,10,.3)}
+body.light .pc.r2{background:linear-gradient(135deg,rgba(100,120,160,.1),rgba(100,120,160,.04));border-color:rgba(100,120,160,.2)}
+body.light .pc.r3{background:linear-gradient(135deg,rgba(180,100,30,.08),rgba(180,100,30,.02));border-color:rgba(180,100,30,.2)}
+body.light .row{border-color:transparent}
+body.light .row:hover{background:rgba(26,111,255,.04)}
+body.light .ticker{background:rgba(240,242,247,.98);border-top:1px solid rgba(26,111,255,.2)}
+body.light .tick-item{color:var(--blue)}
+body.light .show-btn{background:rgba(26,111,255,.1);border-color:rgba(26,111,255,.3)}
+body.light body::before{display:none}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--bw);font-weight:300;color:var(--tx)}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -285,6 +304,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <span class="stxt" id="stxt">Sin datos</span>
     <span class="etxt" id="etxt"></span>
     <button class="cbtn green" onclick="abrirMetas()">🎯 Metas</button>
+    <button class="cbtn blue" id="btn-theme" onclick="toggleTheme()" title="Cambiar tema">☀ Claro</button>
     <button class="cbtn gold" onclick="toggleFS()">⛶ Pantalla completa</button>
     <button class="cbtn blue" onclick="ocultarCtrl()">⊡ Ocultar</button>
   </div>
@@ -323,7 +343,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div>Asesor · Cartera · Progreso de meta</div>
           <div>Monto</div>
           <div style="text-align:center">Promesas</div>
-          <div style="text-align:center">Δ Pos</div>
+          <div style="text-align:center">±Meta</div>
         </div>
         <div class="lista-scroll" id="lista"></div>
       </div>
@@ -581,7 +601,7 @@ function calcRank(data){
     var carts=Object.keys(r.cartMap).sort(function(a,b){return r.cartMap[b]-r.cartMap[a];});
     r.cartera=carts[0]||'Sin cartera';
     r.meta=getMeta(r.cartera);
-    r.pct=r.meta>0?Math.min(r.promesas/r.meta*100,100):0;
+    r.pct=r.meta>0?(r.promesas/r.meta*100):0;
     return r;
   });
   // Filtrar asesores sin actividad
@@ -595,13 +615,20 @@ function calcRank(data){
 // RENDER
 // ════════════════════════════════════════════
 function barClr(p){
+  if(p>=150) return 'linear-gradient(90deg,#00ffff,#00ffaa,#1fd46a)';
   if(p>=100) return 'linear-gradient(90deg,#1fd46a,#00ffaa)';
   if(p>=75)  return 'linear-gradient(90deg,#4da3ff,#1fd46a)';
   if(p>=50)  return 'linear-gradient(90deg,#f5c518,#4da3ff)';
   if(p>=25)  return 'linear-gradient(90deg,#ff8833,#f5c518)';
   return 'linear-gradient(90deg,#ff3355,#ff8833)';
 }
-function pctClr(p){return p>=100?'var(--green)':p>=50?'var(--blue2)':'var(--amber)';}
+function pctClr(p){
+  if(p>=150) return '#00ffff';
+  if(p>=100) return 'var(--green)';
+  if(p>=50)  return 'var(--blue2)';
+  return 'var(--amber)';
+}
+function pctLabel(p){ return p.toFixed(0)+'%'+(p>100?' 🔥':''); }
 
 function renderAll(){
   var data=getFiltrados(),rank=calcRank(data);
@@ -647,9 +674,9 @@ function renderPodio(top){
       +'</div>'
       +'<div class="meta-top">'
         +'<span class="meta-lbl2">Meta: '+r.meta+' promesas/día</span>'
-        +'<span class="meta-pct" style="color:'+pctClr(r.pct)+'">'+r.pct.toFixed(0)+'%</span>'
+        +'<span class="meta-pct" style="color:'+pctClr(r.pct)+'">'+pctLabel(r.pct)+'</span>'
       +'</div>'
-      +'<div class="bar-track"><div class="bar-fill" style="width:'+r.pct+'%;background:'+bc+'"></div></div>'
+      +'<div class="bar-track"><div class="bar-fill" style="width:'+Math.min(r.pct,100)+'%;background:'+bc+';box-shadow:'+(r.pct>=100?'0 0 8px rgba(31,212,106,.5)':'none')+'"></div></div>'
       +'</div>';
   }).join('');
 }
@@ -671,13 +698,13 @@ function renderLista(rank){
           +'<span style="font-family:var(--bcon);font-size:9px;color:var(--tx3)">Meta: '+r.meta+'</span>'
         +'</div>'
         +'<div class="r-prog-wrap">'
-          +'<div class="r-prog-track"><div class="r-prog-fill" style="width:'+r.pct+'%;background:'+bc+'"></div></div>'
-          +'<span class="r-prog-lbl">'+r.promesas+'/'+r.meta+' · '+r.pct.toFixed(0)+'%</span>'
+          +'<div class="r-prog-track"><div class="r-prog-fill" style="width:'+Math.min(r.pct,100)+'%;background:'+bc+';'+(r.pct>=100?'box-shadow:0 0 6px rgba(31,212,106,.5)':'')+'"></div></div>'
+          +'<span class="r-prog-lbl">'+r.promesas+'/'+r.meta+' · '+pctLabel(r.pct)+'</span>'
         +'</div>'
       +'</div>'
       +'<div class="r-monto">$'+fmt(r.monto)+'</div>'
       +'<div class="r-prom">'+r.promesas+'</div>'
-      +'<div class="r-trend '+tc+'">'+delta+'</div>'
+      +'<div class="r-trend '+(r.promesas>=r.meta?'up':'dn')+'">+'+(r.promesas>=r.meta?'+'+String(r.promesas-r.meta):String(r.promesas-r.meta))+'</div>'
       +'</div>';
   }).join('');
 }
@@ -740,6 +767,19 @@ function ajH(){
 }
 ajH();
 function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+function toggleTheme(){
+  var isLight = document.body.classList.toggle('light');
+  var btn = document.getElementById('btn-theme');
+  if(btn) btn.textContent = isLight ? '🌙 Oscuro' : '☀ Claro';
+  try{ localStorage.setItem('spear_theme', isLight?'light':'dark'); }catch(e){}
+}
+// Restaurar tema guardado
+(function(){
+  try{ if(localStorage.getItem('spear_theme')==='light'){
+    document.body.classList.add('light');
+    var b=document.getElementById('btn-theme'); if(b) b.textContent='🌙 Oscuro';
+  }}catch(e){}
+})();
 function uniq(arr){return arr.filter(function(v,i,a){return a.indexOf(v)===i;}).sort();}
 function fmt(n){if(n>=1000000)return(n/1000000).toFixed(2)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toFixed(2);}
 function setErr(m){document.getElementById('etxt').textContent=m;}
