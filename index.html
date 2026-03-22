@@ -704,7 +704,7 @@ function renderLista(rank){
       +'</div>'
       +'<div class="r-monto">$'+fmt(r.monto)+'</div>'
       +'<div class="r-prom">'+r.promesas+'</div>'
-      +'<div class="r-trend '+(r.promesas>=r.meta?'up':'dn')+'">+'+(r.promesas>=r.meta?'+'+String(r.promesas-r.meta):String(r.promesas-r.meta))+'</div>'
+      +'<div class="r-trend '+(r.promesas>=r.meta?'up':'dn')+'">'+( r.promesas>=r.meta ? '+'+String(r.promesas-r.meta) : String(r.promesas-r.meta) )+'</div>'
       +'</div>';
   }).join('');
 }
